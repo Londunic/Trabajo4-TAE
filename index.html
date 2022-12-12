@@ -1,0 +1,2772 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.189">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Edwar Jose Londoño Correa   Andres Castrillón Velasquez   Diego Andres Chavarria Riaño   Sebastian Rendon Arteaga   Valentina Vanegas Castaño">
+
+<title> ¶ The Adaptive Learning Challenge ¶ </title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="Trabajo4tae_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Trabajo4tae_files/libs/quarto-html/quarto.js"></script>
+<script src="Trabajo4tae_files/libs/quarto-html/popper.min.js"></script>
+<script src="Trabajo4tae_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Trabajo4tae_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Trabajo4tae_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Trabajo4tae_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Trabajo4tae_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Trabajo4tae_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Trabajo4tae_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<script src="Trabajo4tae_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="Trabajo4tae_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><center> ¶ The Adaptive Learning Challenge ¶ </center></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Edwar Jose Londoño Correa <br> Andres Castrillón Velasquez <br> Diego Andres Chavarria Riaño <br> Sebastian Rendon Arteaga <br> Valentina Vanegas Castaño </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<section id="contexto-del-problema" class="level2">
+<h2 class="anchored" data-anchor-id="contexto-del-problema">1- Contexto del problema</h2>
+<p>El objetivo de esta competencia es crear un modelo de aprendizaje automático capaz de predecir la probabilidad de que un estudiante determinado responda correctamente la siguiente pregunta, dada una secuencia previa de cien resoluciones.</p>
+<div class="cell">
+
+</div>
+</section>
+<section id="procesamiento-de-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="procesamiento-de-los-datos">2- Procesamiento de los datos</h2>
+<section id="selección-de-variables" class="level3">
+<h3 class="anchored" data-anchor-id="selección-de-variables">2.1- Selección de variables</h3>
+<p>Para la selección de las variables, se tomo en cuenta lo siguiente:</p>
+<ul>
+<li><p>Se decide eliminar las variables “gp.college.type”, “gp.degree.course”, y “gp.school.type”, ya que consideramos suficiente la información obtenida de la variable “gp.carrers”.</p></li>
+<li><p>Se decide eliminar las variables “city” y “region”, ya que consideramos suficiente la información obtenida por país.</p></li>
+<li><p>Se eliminan las variables “device”, “device_type”, “os”, y “platform”, ya que no se considera relevante la información del dispostivio en el que el usuario presenta el examen.</p></li>
+<li><p>Las variables “gp:segment” , “commented_by_teacher” y “gp:source_project” son eliminadas ya que no se consideran relevantes para el estudio.</p></li>
+<li><p>La variable “created_at” se elimina ya que no se considera relevante la fecha en que presento la pregunta, y “publication_year” también se elimina ya que no se considera importante el año en que se publicó la pregunta.</p></li>
+<li><p>Las variables “row”, “discipline_id”, “examining_board_id”, “institute_id”, “novo_question_id”, “knowledge_area_id”, “product_id” y “novo_user_id” se eliminan ya que son variables de identificación.</p></li>
+</ul>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+</section>
+<section id="análisis-de-las-variables-seleccionadas" class="level3">
+<h3 class="anchored" data-anchor-id="análisis-de-las-variables-seleccionadas">2.2- Análisis de las variables seleccionadas</h3>
+<section id="variable-country" class="level4">
+<h4 class="anchored" data-anchor-id="variable-country">Variable “country”</h4>
+<p>En la Tabla 1 podemos observar los valores únicos de esta variable. Para propósitos de estudio, solo se van a tener en cuenta los usuarios unicamente del país Brasil, los cuales son 19.836 usuarios de los 20.000 en total. Al hacer lo anterior, se va a proceder a eliminar esta variable, ya que ya no se considera relevante</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Los primeros valores únicos - Country</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> country </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Brazil </td>
+   <td style="text-align:right;"> 1983600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 13200 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> United States </td>
+   <td style="text-align:right;"> 800 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Portugal </td>
+   <td style="text-align:right;"> 300 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 1.</strong> Valores únicos de la variable “country”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+</section>
+<section id="variable-gp.carrers" class="level4">
+<h4 class="anchored" data-anchor-id="variable-gp.carrers">Variable “gp.carrers”</h4>
+<p>En la Tabla 2 podemos observar los valores únicos de esta variable, los cuales son 1.452. Esta variable indica la carrera o el grupo de carreras al que pertenece el usuario. Debido a que los usuarios pueden pertenecer a diferentes carreras, se tomará unicamente la primera carrera de cada grupo. Esta correción se puede ver en la Tabla 3.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Carrers</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> gp.carrers </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Policial </td>
+   <td style="text-align:right;"> 486300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Jurídica </td>
+   <td style="text-align:right;"> 165000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Outras </td>
+   <td style="text-align:right;"> 135400 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:right;"> 121300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 103600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Administrativa </td>
+   <td style="text-align:right;"> 83900 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Saúde </td>
+   <td style="text-align:right;"> 67500 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Educação </td>
+   <td style="text-align:right;"> 60100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Tribunal, Jurídica </td>
+   <td style="text-align:right;"> 54600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiscal </td>
+   <td style="text-align:right;"> 44800 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 2.</strong> Valores únicos de la variable “gp.carrers”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Carrers corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> gp.carrers </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Policial </td>
+   <td style="text-align:right;"> 620100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:right;"> 368300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiscal </td>
+   <td style="text-align:right;"> 199600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Jurídica </td>
+   <td style="text-align:right;"> 182200 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Outras </td>
+   <td style="text-align:right;"> 143200 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Administrativa </td>
+   <td style="text-align:right;"> 118700 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 103600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Saúde </td>
+   <td style="text-align:right;"> 79500 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Educação </td>
+   <td style="text-align:right;"> 75700 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Bancária </td>
+   <td style="text-align:right;"> 27900 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Legislativa </td>
+   <td style="text-align:right;"> 24400 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Exército </td>
+   <td style="text-align:right;"> 14000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Controle e Gestão </td>
+   <td style="text-align:right;"> 10300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Marinha </td>
+   <td style="text-align:right;"> 8300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Aeronáutica </td>
+   <td style="text-align:right;"> 7800 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 3.</strong> Valores únicos de la variable “gp.carrers” corregidos
+</center>
+<p><br></p>
+</section>
+<section id="variable-gp.previous.experience" class="level4">
+<h4 class="anchored" data-anchor-id="variable-gp.previous.experience">Variable “gp.previous.experience”</h4>
+<p>En la Tabla 4 podemos observar los valores únicos de esta variable, los cuales son “beginner”, “experient”, ” professional” y “highly_experient”. Esta variable indica la experiencia previa como examinado del servicio civil.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Previous Experience</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> gp.previous.experience </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 1037400 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> beginner </td>
+   <td style="text-align:right;"> 545300 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> experient </td>
+   <td style="text-align:right;"> 270500 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> professional </td>
+   <td style="text-align:right;"> 93100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> highly_experient </td>
+   <td style="text-align:right;"> 37300 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 4.</strong> Valores únicos de la variable “gp.previous.experience”
+</center>
+<p><br></p>
+</section>
+<section id="variable-difficulty" class="level4">
+<h4 class="anchored" data-anchor-id="variable-difficulty">Variable “difficulty”</h4>
+<p>En la Tabla 5 podemos observar los valores únicos de esta variable, los cuales son: “1”, “2”, “3”, “4” y “5”. Esta variable indica la dificultad de la pregunta. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 1=level 1, 2= level 2, 3= level 3, 4= level 4 y 5= level 5. Lo anterior se puede ver en la Tabla 6.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Difficulty</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> difficulty </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 797705 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 635004 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 462169 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 84875 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 2614 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 1233 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 5.</strong> Valores únicos de la variable “difficulty”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Difficulty corregido</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> difficulty </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> level_2 </td>
+   <td style="text-align:right;"> 797705 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_1 </td>
+   <td style="text-align:right;"> 635004 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_3 </td>
+   <td style="text-align:right;"> 462169 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_4 </td>
+   <td style="text-align:right;"> 84875 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 2614 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_5 </td>
+   <td style="text-align:right;"> 1233 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 6.</strong> Valores únicos de la variable “difficulty” corregidos
+</center>
+<p><br></p>
+</section>
+<section id="variable-modality_id" class="level4">
+<h4 class="anchored" data-anchor-id="variable-modality_id">Variable “modality_id”</h4>
+<p>En la Tabla 7 podemos observar los valores únicos de esta variable, los cuales son “1” y “2”. Esta variable indica el tipo de pregunta (Selección multiple o correcto/incorrecto). Para mejor entendimiento, se cambiará los valores 1 por S_M y el valor 2 por V_F. Lo anterior se puede ver en la Tabla 8.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Modality</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> modality_id </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1493620 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 489802 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 7.</strong> Valores únicos de la variable “modality_id”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Modality corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> modality_id </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> S_M </td>
+   <td style="text-align:right;"> 1493620 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> V_F </td>
+   <td style="text-align:right;"> 489802 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 8.</strong> Valores únicos de la variable “modality_id” corregidos
+</center>
+<p><br></p>
+</section>
+<section id="variable-right_answer" class="level4">
+<h4 class="anchored" data-anchor-id="variable-right_answer">Variable “right_answer”</h4>
+<p>En la Tabla 9 podemos observar los valores únicos de esta variable. Esta variable indica la respuesta correcta de la pregunta. Se cambiaran los valores diferentes a A,B, C, D y E por NA. Lo anterior se puede ver en la Tabla 10.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Right Answer</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> right_answer </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> C </td>
+   <td style="text-align:right;"> 566247 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> E </td>
+   <td style="text-align:right;"> 467393 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> D </td>
+   <td style="text-align:right;"> 318788 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> B </td>
+   <td style="text-align:right;"> 315994 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> A </td>
+   <td style="text-align:right;"> 314961 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> X </td>
+   <td style="text-align:right;"> 37 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> * </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> + </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 9.</strong> Valores únicos de la variable “right_answer”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Right Answer corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> right_answer </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> C </td>
+   <td style="text-align:right;"> 566247 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> E </td>
+   <td style="text-align:right;"> 467393 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> D </td>
+   <td style="text-align:right;"> 318788 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> B </td>
+   <td style="text-align:right;"> 315994 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> A </td>
+   <td style="text-align:right;"> 314961 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 217 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 10.</strong> Valores únicos de la variable “right_answer” corregidos
+</center>
+<p><br></p>
+</section>
+<section id="variable-scholarity_id" class="level4">
+<h4 class="anchored" data-anchor-id="variable-scholarity_id">Variable “scholarity_id”</h4>
+<p>En la Tabla 11 podemos observar los valores únicos de esta variable, los cuales son “1”, “2” y “3”. Esta variable indica el nivel educativo de la pregunta. Para mayor entendimiento, los valores se van a transformar por: 1= level_1, 2= level_2 y 3= level_3. Lo anterior se puede ver en la Tabla 12.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Scholarity</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> scholarity_id </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 1306189 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 634838 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 42395 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 11.</strong> Valores únicos de la variable “scholarity_id”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Scholarity Corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> scholarity_id </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> level_3 </td>
+   <td style="text-align:right;"> 1306189 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_2 </td>
+   <td style="text-align:right;"> 634838 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> level_1 </td>
+   <td style="text-align:right;"> 42395 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 12.</strong> Valores únicos de la variable “scholarity_id” corregidos
+</center>
+<p><br></p>
+</section>
+<section id="variable-nullified" class="level4">
+<h4 class="anchored" data-anchor-id="variable-nullified">Variable “nullified”</h4>
+<p>En la Tabla 13 podemos observar los valores únicos de esta variable, los cuales son “0” y “1”. Esta variable indica si la pregunta fue cancelada. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 0=No y 1= Yes. Lo anterior se puede ver en la Tabla 14.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Nullified</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> nullified </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1978323 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5099 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 13.</strong> Valores únicos de la variable “nullified”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Nullified corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> nullified </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 1978323 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 5099 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 14.</strong> Valores únicos de la variable “nullified” corregida
+</center>
+<p><br></p>
+</section>
+<section id="variable-outdated" class="level4">
+<h4 class="anchored" data-anchor-id="variable-outdated">Variable “outdated”</h4>
+<p>En la Tabla 15 podemos observar los valores únicos de esta variable, los cuales son “0” y “1”. Esta variable indica si la pregunta es desactualizada. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 0=No y 1= Yes. Lo anterior se puede ver en la Tabla 16.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Outdated</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> outdated </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1947963 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 35459 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 15.</strong> Valores únicos de la variable “outdated”
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Outdated corregidos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> outdated </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 1947963 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 35459 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 16.</strong> Valores únicos de la variable “outdated” corregidos
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+</section>
+</section>
+<section id="análisis-de-valores-na" class="level3">
+<h3 class="anchored" data-anchor-id="análisis-de-valores-na">2.3- Análisis de valores NA</h3>
+<p>En la Tabla 17 podemos observar los valores, NA por cada variable de la base de datos.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores NA</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> x </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> gp.carrers </td>
+   <td style="text-align:right;"> 103600 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> gp.previous.experience </td>
+   <td style="text-align:right;"> 1037400 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> acertou </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> difficulty </td>
+   <td style="text-align:right;"> 2614 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> modality_id </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> right_answer </td>
+   <td style="text-align:right;"> 217 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> scholarity_id </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nullified </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> outdated </td>
+   <td style="text-align:right;"> 178 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 17.</strong> Cantidad de valores NA de cada variable de la base datos
+</center>
+<p><br></p>
+<p>Se puede observar que las variables “modality_id”, “scholarity_id”, “nullified” y “outdated” se tiene la misma cantidad de valores NA. En la Tabla 18 se observa los registros donde se evidencia esto.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Registros del dataset</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:left;"> gp.carrers </th>
+   <th style="text-align:left;"> gp.previous.experience </th>
+   <th style="text-align:left;"> acertou </th>
+   <th style="text-align:left;"> difficulty </th>
+   <th style="text-align:left;"> modality_id </th>
+   <th style="text-align:left;"> right_answer </th>
+   <th style="text-align:left;"> scholarity_id </th>
+   <th style="text-align:left;"> nullified </th>
+   <th style="text-align:left;"> outdated </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 38636 </td>
+   <td style="text-align:left;"> Policial </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 52691 </td>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:left;"> experient </td>
+   <td style="text-align:left;"> 0 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 52692 </td>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:left;"> experient </td>
+   <td style="text-align:left;"> 0 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 52693 </td>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:left;"> experient </td>
+   <td style="text-align:left;"> 0 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 52694 </td>
+   <td style="text-align:left;"> Tribunal </td>
+   <td style="text-align:left;"> experient </td>
+   <td style="text-align:left;"> 0 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 18.</strong> Registros del dataset donde las variables “modality_id”, “scholarity_id”, “nullified” y “outdated” son NA
+</center>
+<p><br></p>
+<p>En la Tabla 18 podemos observar que se cumple que en los 178 registros donde las variables “modality_id”, “scholarity_id”, “nullified” y “outdated” son NA, son los mismos. Se procede a eliminar estos registros.</p>
+<div class="cell">
+
+</div>
+<p>En la Tabla 19, se vuelve a calcular la cantidad de valores NA por cada variable.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores NA</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> x </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> gp.carrers </td>
+   <td style="text-align:right;"> 103593 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> gp.previous.experience </td>
+   <td style="text-align:right;"> 1037360 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> acertou </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> difficulty </td>
+   <td style="text-align:right;"> 2436 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> modality_id </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> right_answer </td>
+   <td style="text-align:right;"> 39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> scholarity_id </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nullified </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> outdated </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 19.</strong> Cantidad de valores NA de cada variable de la base datos
+</center>
+<p><br></p>
+<p>Para las variables “gp.carrers’,”gp.previous.experience” y “difficulty”, se les va a sustituir sus valores NA por el valor de la moda.</p>
+<div class="cell">
+
+</div>
+<p>Para la variable “right_answer”, los valores NA se van a sustituir por el valor de la moda, de acuerdo las posibles respuesta dependiendo del tipo de pregunta (modality_id).</p>
+<div class="cell">
+
+</div>
+<p>En la Tabla 20, podemos observar la cantidad de valores de cada valor único de la variable “right_answer” cuando la variable modality_id es igual a S_M. Y en la Tabla 21, podemos observar la cantidad de valores de cada valor único de la variable “right_answer” cuando la variable modality_id es igual a V_F</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Right Answer</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> right_answer </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> C </td>
+   <td style="text-align:right;"> 325753 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> D </td>
+   <td style="text-align:right;"> 318785 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> B </td>
+   <td style="text-align:right;"> 315994 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> A </td>
+   <td style="text-align:right;"> 314961 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> E </td>
+   <td style="text-align:right;"> 218091 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 36 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 20.</strong> Valores únicos de la variable “right_answer” cuando modality_id = S_M
+</center>
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores únicos - Right Answer</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> right_answer </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> E </td>
+   <td style="text-align:right;"> 249302 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> C </td>
+   <td style="text-align:right;"> 240494 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> D </td>
+   <td style="text-align:right;"> 3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 3 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 21.</strong> Valores únicos de la variable “right_answer” cuando modality_id = V_F
+</center>
+<p><br></p>
+<p>En la Tabla 21, se observa un valor único “D” . Estos valores serán cambiados por el valor NA, ya que los únicos valores permidos para la variable “right_answer” cuando la variable “modality_id” es igual a V_F, son E y C.</p>
+<div class="cell">
+
+</div>
+<p>Una vez corregido los valores NA de la variable “right_answer” por sus respectiva moda, en la Tabla 22 se puede observar las nuevas cantidades de valores NA por variable.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valores NA</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> x </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> gp.carrers </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> gp.previous.experience </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> acertou </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> difficulty </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> modality_id </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> right_answer </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> scholarity_id </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nullified </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> outdated </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 22.</strong> Cantidad de valores NA de cada variable de la base datos
+</center>
+<p><br></p>
+</section>
+<section id="transformación-de-las-variables-categóricas" class="level3">
+<h3 class="anchored" data-anchor-id="transformación-de-las-variables-categóricas">2.4- Transformación de las variables categóricas</h3>
+<p>Se convierten las variables categóricas a variables dummy, exceptuando la variable objetivo (“acertou”). Hay que tener en cuenta que todas las variables de la base de datos son categóricas. Con lo anterior, se obtiene un dataset con las dimensiones que se puede ver en la Tabla 23.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Tamaño del dataset</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Filas </th>
+   <th style="text-align:right;"> Columnas </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 1983422 </td>
+   <td style="text-align:right;"> 38 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 23.</strong> Dimensiones del dataset
+</center>
+<p><br></p>
+</section>
+</section>
+<section id="modelo-predictivo" class="level2">
+<h2 class="anchored" data-anchor-id="modelo-predictivo">3- Modelo predictivo</h2>
+<p>Ya con la limpieza realizada a los datos, se procede con la creación del modelo de predicción. Para obtener una buena clasificación, vamos a crear diferentes modelos usando diferentes algoritmos y evaluaremos sus resultados para seleccionar el mejor modelo. Los algoritmos que se van a utilizar son:</p>
+<ul>
+<li><p>Regresión logística.</p></li>
+<li><p>Clasificador bayesiano ingenuo.</p></li>
+</ul>
+<section id="transformación-de-la-variable-objetivo" class="level3">
+<h3 class="anchored" data-anchor-id="transformación-de-la-variable-objetivo">3.1- Transformación de la variable objetivo</h3>
+<p>Como paso inicial para la creación del modelo, se transforma la variable objetivo “Acertou” la cual tiene valores 0 y 1, a valores “No” o “Yes” respectivamente.</p>
+<div class="cell">
+
+</div>
+</section>
+<section id="división-del-conjunto-de-datos-en-entrenamiento-y-validación" class="level3">
+<h3 class="anchored" data-anchor-id="división-del-conjunto-de-datos-en-entrenamiento-y-validación">3.2- División del conjunto de datos en entrenamiento y validación</h3>
+<p>El conjunto de datos se va a dividir de la siguiente forma: 80% para el conjunto de entrenamiento y el 20% para el conjunto de validación.</p>
+<div class="cell">
+
+</div>
+<p>Se realiza una revisión de la tasa de la variable “aciertos” en los conjuntos de entrenamiento y de validación.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Proporción de la variable Acertou en el conjunto de entrenamiento</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Var1 </th>
+   <th style="text-align:right;"> Freq </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 0.3458063 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 0.6541937 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 24.</strong> Proporción de la variable Acertou en el conjunto de entrenamiento
+</center>
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Proporción de la variable Acertou en el conjunto de validación</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Var1 </th>
+   <th style="text-align:right;"> Freq </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 0.3456378 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 0.6543622 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 25.</strong> Proporción de la variable Acertou en el conjunto de entrenamiento
+</center>
+<p><br></p>
+<p>Como se puede ver en las Tablas 24 y 25, se mantiene la misma proporción de la variable “aciertos” en ambos conjuntos de datos.</p>
+<div class="cell">
+
+</div>
+</section>
+<section id="modelo-usando-regresión-logística." class="level3">
+<h3 class="anchored" data-anchor-id="modelo-usando-regresión-logística.">3.3- Modelo usando regresión logística.</h3>
+<p>La regresión logística es “un método de regresión que permite estimar la probabilidad de una variable cualitativa binaria en función de una variable cuantitativa” (Amat, 2016).</p>
+<p>Para la creación del modelo, usaremos los datos de entrenamiento. Una vez entrenado el modelo. Podemos observar en la Tabla 26 el resumen del modelo. En este resumen se obtiene el <strong>p-value</strong> <strong>(Pr(&gt;|z|)</strong>, el cual representa la relevancia estadística que tiene cada una de las variables como elemento predictivo.</p>
+<p>Usando un nivel de significancia alpha = 0.05, identificamos que las variables “difficulty.level_1”, “difficulty.level_2”, “difficulty.level_3”, “difficulty.level_4” y “difficulty.level_5” no tienen importancia para el modelo. Se vuelve a crear el modelo eliminando las variables anteriores.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 63%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">Estimate</th>
+<th style="text-align: center;">Std. Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>(Intercept)</strong></td>
+<td style="text-align: center;">2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Administrativa</strong></td>
+<td style="text-align: center;">-0.1058</td>
+<td style="text-align: center;">0.008413</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Aeronáutica</strong></td>
+<td style="text-align: center;">-0.05542</td>
+<td style="text-align: center;">0.02793</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Bancária</strong></td>
+<td style="text-align: center;">-0.1092</td>
+<td style="text-align: center;">0.01536</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong><code>gp.carrers.Controle e Gestão</code></strong></td>
+<td style="text-align: center;">0.05262</td>
+<td style="text-align: center;">0.02566</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Educação</strong></td>
+<td style="text-align: center;">0.01809</td>
+<td style="text-align: center;">0.01008</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Exército</strong></td>
+<td style="text-align: center;">-0.07155</td>
+<td style="text-align: center;">0.021</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Fiscal</strong></td>
+<td style="text-align: center;">-0.02347</td>
+<td style="text-align: center;">0.006992</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Jurídica</strong></td>
+<td style="text-align: center;">0.07101</td>
+<td style="text-align: center;">0.007204</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Legislativa</strong></td>
+<td style="text-align: center;">0.03211</td>
+<td style="text-align: center;">0.01663</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Marinha</strong></td>
+<td style="text-align: center;">-0.0786</td>
+<td style="text-align: center;">0.02706</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Outras</strong></td>
+<td style="text-align: center;">-0.09888</td>
+<td style="text-align: center;">0.007724</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Policial</strong></td>
+<td style="text-align: center;">-0.2298</td>
+<td style="text-align: center;">0.005092</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Saúde</strong></td>
+<td style="text-align: center;">0.01421</td>
+<td style="text-align: center;">0.009666</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.previous.experience.beginner</strong></td>
+<td style="text-align: center;">-0.1917</td>
+<td style="text-align: center;">0.00861</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.previous.experience.experient</strong></td>
+<td style="text-align: center;">-0.1755</td>
+<td style="text-align: center;">0.009661</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.previous.experience.highly_experient</strong></td>
+<td style="text-align: center;">-0.1857</td>
+<td style="text-align: center;">0.01528</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_1</strong></td>
+<td style="text-align: center;">-2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>difficulty.level_2</strong></td>
+<td style="text-align: center;">-2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_3</strong></td>
+<td style="text-align: center;">-2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>difficulty.level_4</strong></td>
+<td style="text-align: center;">-2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_5</strong></td>
+<td style="text-align: center;">-2.854e+09</td>
+<td style="text-align: center;">3.624e+09</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>modality_id.S_M</strong></td>
+<td style="text-align: center;">-0.1192</td>
+<td style="text-align: center;">0.005189</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>right_answer.A</strong></td>
+<td style="text-align: center;">0.06602</td>
+<td style="text-align: center;">0.006252</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>right_answer.B</strong></td>
+<td style="text-align: center;">0.05113</td>
+<td style="text-align: center;">0.006215</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>right_answer.C</strong></td>
+<td style="text-align: center;">0.07564</td>
+<td style="text-align: center;">0.005024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>right_answer.D</strong></td>
+<td style="text-align: center;">0.06211</td>
+<td style="text-align: center;">0.006198</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>scholarity_id.level_1</strong></td>
+<td style="text-align: center;">0.168</td>
+<td style="text-align: center;">0.01305</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>scholarity_id.level_2</strong></td>
+<td style="text-align: center;">0.03509</td>
+<td style="text-align: center;">0.00391</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>nullified.No</strong></td>
+<td style="text-align: center;">0.03712</td>
+<td style="text-align: center;">0.03299</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>outdated.No</strong></td>
+<td style="text-align: center;">0.05492</td>
+<td style="text-align: center;">0.01292</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 63%">
+<col style="width: 13%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">z value</th>
+<th style="text-align: center;">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>(Intercept)</strong></td>
+<td style="text-align: center;">0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Administrativa</strong></td>
+<td style="text-align: center;">-12.57</td>
+<td style="text-align: center;">3.018e-36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Aeronáutica</strong></td>
+<td style="text-align: center;">-1.984</td>
+<td style="text-align: center;">0.04722</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Bancária</strong></td>
+<td style="text-align: center;">-7.11</td>
+<td style="text-align: center;">1.157e-12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong><code>gp.carrers.Controle e Gestão</code></strong></td>
+<td style="text-align: center;">2.05</td>
+<td style="text-align: center;">0.04033</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Educação</strong></td>
+<td style="text-align: center;">1.795</td>
+<td style="text-align: center;">0.07271</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Exército</strong></td>
+<td style="text-align: center;">-3.407</td>
+<td style="text-align: center;">0.0006576</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Fiscal</strong></td>
+<td style="text-align: center;">-3.357</td>
+<td style="text-align: center;">0.0007883</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Jurídica</strong></td>
+<td style="text-align: center;">9.857</td>
+<td style="text-align: center;">6.38e-23</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Legislativa</strong></td>
+<td style="text-align: center;">1.931</td>
+<td style="text-align: center;">0.0535</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Marinha</strong></td>
+<td style="text-align: center;">-2.904</td>
+<td style="text-align: center;">0.003681</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Outras</strong></td>
+<td style="text-align: center;">-12.8</td>
+<td style="text-align: center;">1.621e-37</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.carrers.Policial</strong></td>
+<td style="text-align: center;">-45.14</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.carrers.Saúde</strong></td>
+<td style="text-align: center;">1.47</td>
+<td style="text-align: center;">0.1415</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.previous.experience.beginner</strong></td>
+<td style="text-align: center;">-22.26</td>
+<td style="text-align: center;">8.889e-110</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>gp.previous.experience.experient</strong></td>
+<td style="text-align: center;">-18.16</td>
+<td style="text-align: center;">1.064e-73</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>gp.previous.experience.highly_experient</strong></td>
+<td style="text-align: center;">-12.15</td>
+<td style="text-align: center;">5.792e-34</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_1</strong></td>
+<td style="text-align: center;">-0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>difficulty.level_2</strong></td>
+<td style="text-align: center;">-0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_3</strong></td>
+<td style="text-align: center;">-0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>difficulty.level_4</strong></td>
+<td style="text-align: center;">-0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>difficulty.level_5</strong></td>
+<td style="text-align: center;">-0.7876</td>
+<td style="text-align: center;">0.4309</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>modality_id.S_M</strong></td>
+<td style="text-align: center;">-22.98</td>
+<td style="text-align: center;">8.137e-117</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>right_answer.A</strong></td>
+<td style="text-align: center;">10.56</td>
+<td style="text-align: center;">4.563e-26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>right_answer.B</strong></td>
+<td style="text-align: center;">8.227</td>
+<td style="text-align: center;">1.913e-16</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>right_answer.C</strong></td>
+<td style="text-align: center;">15.06</td>
+<td style="text-align: center;">3.2e-51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>right_answer.D</strong></td>
+<td style="text-align: center;">10.02</td>
+<td style="text-align: center;">1.226e-23</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>scholarity_id.level_1</strong></td>
+<td style="text-align: center;">12.88</td>
+<td style="text-align: center;">5.883e-38</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>scholarity_id.level_2</strong></td>
+<td style="text-align: center;">8.974</td>
+<td style="text-align: center;">2.857e-19</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>nullified.No</strong></td>
+<td style="text-align: center;">1.125</td>
+<td style="text-align: center;">0.2605</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>outdated.No</strong></td>
+<td style="text-align: center;">4.252</td>
+<td style="text-align: center;">2.117e-05</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<center>
+<strong>Tabla 26.</strong> Resumen estadístico del modelo usando regresión logística
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+<p>Ya con el modelo creado y entrenado, se realiza la predicción usando los valores de entrenamiento para analizar el comportamiento del modelo. Al momento de realizar las predicciones, se obtienen los valores de probabilidad de ocurriencia de cada clase. A continuación, se analiza el valor del umbral para identificar cuando una un registro se clasifica como “Yes” o “No”. Este umbral indica: si la probabilidad es menor o igual al umbral, se clasifica como “No”, en caso contrario, se clasifica como “Si”.</p>
+<section id="umbral-0.5" class="level4">
+<h4 class="anchored" data-anchor-id="umbral-0.5">3.3.1- Umbral = 0.5</h4>
+<p>Al utilizar un umbral igual a 0.5, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 27.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 914 </td>
+   <td style="text-align:right;"> 547790 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 838 </td>
+   <td style="text-align:right;"> 1037196 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 27.</strong> Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.5
+</center>
+<p><br> En la Tabla 27 podemos observar que se tiene un total de 1.038.110 predicciones correctas y 548.628, lo que equivale a una precisión de predicción de 65,42% correcta y de 34,58% incorrecta.</p>
+<p>En la Tabla 28, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.6542416 </td>
+   <td style="text-align:right;"> 0.6543881 </td>
+   <td style="text-align:right;"> 0.5216895 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 28.</strong> Métricas del modelo utilizando un umbral = 0.5
+</center>
+<p><br></p>
+</section>
+<section id="umbral-0.4" class="level4">
+<h4 class="anchored" data-anchor-id="umbral-0.4">3.3.3- Umbral = 0.4</h4>
+<p>Al utilizar un umbral igual a 0.4, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 29.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 13 </td>
+   <td style="text-align:right;"> 548691 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 1038025 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 29.</strong> Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.4
+</center>
+<p><br></p>
+<p>En la Tabla 29 podemos observar que se tiene un total de 1.038.038 predicciones correctas y 548.700, lo que equivale a una precisión de predicción de 65,42% correcta y de 34,58% incorrecta.</p>
+<p>En la Tabla 30, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.6541962 </td>
+   <td style="text-align:right;"> 0.6541971 </td>
+   <td style="text-align:right;"> 0.5909091 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 30.</strong> Métricas del modelo utilizando un umbral = 0.4
+</center>
+<p><br></p>
+</section>
+<section id="umbral-0.6" class="level4">
+<h4 class="anchored" data-anchor-id="umbral-0.6">3.3.3- Umbral = 0.6</h4>
+<p>Al utilizar un umbral igual a 0.6, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 31.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 117753 </td>
+   <td style="text-align:right;"> 430951 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 164610 </td>
+   <td style="text-align:right;"> 873424 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 31.</strong> Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.6
+</center>
+<p><br></p>
+<p>En la Tabla 31 podemos observar que se tiene un total de 991.177 predicciones correctas y 595.561, lo que equivale a una precisión de predicción de 62,46% correcta y de 37,54% incorrecta.</p>
+<p>En la Tabla 32, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.6246633 </td>
+   <td style="text-align:right;"> 0.6696111 </td>
+   <td style="text-align:right;"> 0.417027 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 32.</strong> Métricas del modelo utilizando un umbral = 0.6
+</center>
+<p><br></p>
+</section>
+<section id="análisis-del-modelo-usando-las-métricas-obtenidas-por-cada-variación-del-umbral" class="level4">
+<h4 class="anchored" data-anchor-id="análisis-del-modelo-usando-las-métricas-obtenidas-por-cada-variación-del-umbral">3.3.4- Análisis del modelo usando las métricas obtenidas por cada variación del umbral</h4>
+<p>Una vez calculado las métricas de precisión, sensibilidad y especificidad para el modelo cambiando el valor del umbral, se obtiene la Tabla 33.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Umbral 0.5 </td>
+   <td style="text-align:right;"> 0.6542416 </td>
+   <td style="text-align:right;"> 0.6543881 </td>
+   <td style="text-align:right;"> 0.5216895 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Umbral 0.4 </td>
+   <td style="text-align:right;"> 0.6541962 </td>
+   <td style="text-align:right;"> 0.6541971 </td>
+   <td style="text-align:right;"> 0.5909091 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Umbral 0.6 </td>
+   <td style="text-align:right;"> 0.6246633 </td>
+   <td style="text-align:right;"> 0.6696111 </td>
+   <td style="text-align:right;"> 0.4170270 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 33.</strong> Métricas del modelo utilizando un umbral igual a 0.4, 0.5 y 0.6
+</center>
+<p><br></p>
+<p>En la Tabla 33, observamos que:</p>
+<ul>
+<li><p>El mejor valor para la presión (capacidad de predección correcta) se obtuvo utilizando un umbral de 0.5.</p></li>
+<li><p>El mejor valor para la sensibilidad (capacidad de predecir verdaderos positivos) se obtuvo utilizando un umbral de 0.6.</p></li>
+<li><p>El mejor valor para la especificidad (capacidad de predecir verdaderos negativos) se obtuvo utilizando un umbral de 0.4.</p></li>
+</ul>
+<p>El interés de este trabajo es crear un modelo que sea bueno prediciendo el valor “Yes”, ya que se busca predecir la probabildad de que un estudiante determinado responda correctamente la siguiente pregunta. Por lo anterior se escoge el umbral 0.6.</p>
+</section>
+<section id="análisis-del-modelo-utilizando-los-datos-de-validación" class="level4">
+<h4 class="anchored" data-anchor-id="análisis-del-modelo-utilizando-los-datos-de-validación">3.3.5- Análisis del modelo utilizando los datos de validación</h4>
+<p>Ya definido el modelo, se realizan validaciones utilizando el conjunto de validación.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 29559 </td>
+   <td style="text-align:right;"> 107550 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 41003 </td>
+   <td style="text-align:right;"> 218572 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 34.</strong> Matriz de confusión de las predecciones obtenidas utilizando los datos de validación
+</center>
+<p><br></p>
+<p>En la Tabla 34, podemos observar que se tiene un total de 248.131 predicciones correctas y 148.553, lo que equivale a una precisión de predicción de 62,55% correcta y de 37,45% incorrecta.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.625513 </td>
+   <td style="text-align:right;"> 0.6702154 </td>
+   <td style="text-align:right;"> 0.4189082 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 35.</strong> Métricas del modelo utilizando el conjunto de datos de validación
+</center>
+<p><br></p>
+<p>Y en la Tabla 35, podemos observar los valores de las métricas de precisión, sensibilidad y especificidad utilizando los datos de validación. Estos valores son similares a los obtenidos en las métricas utilizando el conjunto de entrenamiento, con el umbral definido (0.6).</p>
+</section>
+</section>
+<section id="modelo-utilizando-clasificador-bayesiano-ingenuo" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-utilizando-clasificador-bayesiano-ingenuo">3.4- Modelo utilizando clasificador bayesiano ingenuo</h3>
+<p>El clasificador bayesiano ingenuo es “un modelo de predicción basado en la probabilidad Bayesiana” (Fervilber, 2022).</p>
+<section id="a.c.p-análisis-de-las-componentes-principales" class="level4">
+<h4 class="anchored" data-anchor-id="a.c.p-análisis-de-las-componentes-principales">3.4.1- A.C.P (Análisis de las componentes principales)</h4>
+<p>Se realiza un Análisis de Componentes Principales para la selección de las variables, el cual se puede ver en la Tabla 36. Para conservar el 91.42% de la variabilidad explicada en las variables, se va a trabajar con las primeras 11 componentes principales.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 37%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC1</th>
+<th style="text-align: center;">PC2</th>
+<th style="text-align: center;">PC3</th>
+<th style="text-align: center;">PC4</th>
+<th style="text-align: center;">PC5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">2.135</td>
+<td style="text-align: center;">0.705</td>
+<td style="text-align: center;">0.6635</td>
+<td style="text-align: center;">0.5902</td>
+<td style="text-align: center;">0.5338</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0.5696</td>
+<td style="text-align: center;">0.06213</td>
+<td style="text-align: center;">0.05503</td>
+<td style="text-align: center;">0.04354</td>
+<td style="text-align: center;">0.03562</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.5696</td>
+<td style="text-align: center;">0.6318</td>
+<td style="text-align: center;">0.6868</td>
+<td style="text-align: center;">0.7303</td>
+<td style="text-align: center;">0.766</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 36%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC6</th>
+<th style="text-align: center;">PC7</th>
+<th style="text-align: center;">PC8</th>
+<th style="text-align: center;">PC9</th>
+<th style="text-align: center;">PC10</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">0.5137</td>
+<td style="text-align: center;">0.4836</td>
+<td style="text-align: center;">0.4723</td>
+<td style="text-align: center;">0.4001</td>
+<td style="text-align: center;">0.3986</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0.03299</td>
+<td style="text-align: center;">0.02924</td>
+<td style="text-align: center;">0.02788</td>
+<td style="text-align: center;">0.02001</td>
+<td style="text-align: center;">0.01986</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.7989</td>
+<td style="text-align: center;">0.8282</td>
+<td style="text-align: center;">0.856</td>
+<td style="text-align: center;">0.8761</td>
+<td style="text-align: center;">0.8959</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 36%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC11</th>
+<th style="text-align: center;">PC12</th>
+<th style="text-align: center;">PC13</th>
+<th style="text-align: center;">PC14</th>
+<th style="text-align: center;">PC15</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">0.3818</td>
+<td style="text-align: center;">0.331</td>
+<td style="text-align: center;">0.3085</td>
+<td style="text-align: center;">0.2811</td>
+<td style="text-align: center;">0.2525</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0.01822</td>
+<td style="text-align: center;">0.01369</td>
+<td style="text-align: center;">0.01189</td>
+<td style="text-align: center;">0.00987</td>
+<td style="text-align: center;">0.00797</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.9142</td>
+<td style="text-align: center;">0.9278</td>
+<td style="text-align: center;">0.9397</td>
+<td style="text-align: center;">0.9496</td>
+<td style="text-align: center;">0.9576</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 37%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC16</th>
+<th style="text-align: center;">PC17</th>
+<th style="text-align: center;">PC18</th>
+<th style="text-align: center;">PC19</th>
+<th style="text-align: center;">PC20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">0.2514</td>
+<td style="text-align: center;">0.2305</td>
+<td style="text-align: center;">0.2125</td>
+<td style="text-align: center;">0.197</td>
+<td style="text-align: center;">0.1806</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0.0079</td>
+<td style="text-align: center;">0.00664</td>
+<td style="text-align: center;">0.00565</td>
+<td style="text-align: center;">0.00485</td>
+<td style="text-align: center;">0.00408</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.9655</td>
+<td style="text-align: center;">0.9721</td>
+<td style="text-align: center;">0.9778</td>
+<td style="text-align: center;">0.9826</td>
+<td style="text-align: center;">0.9867</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 36%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC21</th>
+<th style="text-align: center;">PC22</th>
+<th style="text-align: center;">PC23</th>
+<th style="text-align: center;">PC24</th>
+<th style="text-align: center;">PC25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">0.1663</td>
+<td style="text-align: center;">0.1508</td>
+<td style="text-align: center;">0.1278</td>
+<td style="text-align: center;">0.1139</td>
+<td style="text-align: center;">0.0876</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0.00346</td>
+<td style="text-align: center;">0.00284</td>
+<td style="text-align: center;">0.00204</td>
+<td style="text-align: center;">0.00162</td>
+<td style="text-align: center;">0.00096</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.9901</td>
+<td style="text-align: center;">0.993</td>
+<td style="text-align: center;">0.995</td>
+<td style="text-align: center;">0.9967</td>
+<td style="text-align: center;">0.9976</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 37%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC26</th>
+<th style="text-align: center;">PC27</th>
+<th style="text-align: center;">PC28</th>
+<th style="text-align: center;">PC29</th>
+<th style="text-align: center;">PC30</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">0.07498</td>
+<td style="text-align: center;">0.0668</td>
+<td style="text-align: center;">0.06523</td>
+<td style="text-align: center;">0.0633</td>
+<td style="text-align: center;">0.02741</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">7e-04</td>
+<td style="text-align: center;">0.00056</td>
+<td style="text-align: center;">0.00053</td>
+<td style="text-align: center;">5e-04</td>
+<td style="text-align: center;">9e-05</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">0.9983</td>
+<td style="text-align: center;">0.9989</td>
+<td style="text-align: center;">0.9994</td>
+<td style="text-align: center;">0.9999</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<caption>Table continues below</caption>
+<colgroup>
+<col style="width: 37%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC31</th>
+<th style="text-align: center;">PC32</th>
+<th style="text-align: center;">PC33</th>
+<th style="text-align: center;">PC34</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">9.526e-12</td>
+<td style="text-align: center;">2.986e-12</td>
+<td style="text-align: center;">1.718e-12</td>
+<td style="text-align: center;">1.504e-12</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 15%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">&nbsp;</th>
+<th style="text-align: center;">PC35</th>
+<th style="text-align: center;">PC36</th>
+<th style="text-align: center;">PC37</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Standard deviation</strong></td>
+<td style="text-align: center;">9.86e-13</td>
+<td style="text-align: center;">2.864e-13</td>
+<td style="text-align: center;">1.27e-13</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Proportion of Variance</strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Cumulative Proportion</strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<center>
+<strong>Tabla 36.</strong> Análisis de Componentes Principales
+</center>
+<p><br></p>
+<div class="cell">
+
+</div>
+</section>
+<section id="creación-del-modelo" class="level4">
+<h4 class="anchored" data-anchor-id="creación-del-modelo">3.4.2- Creación del modelo</h4>
+<p>Para la creación del modelo, se utiliza la librería “e1071”, la cual trae una función “naiveBayes” que permite crear el modelo. Para la crear el modelo se utilizando los valores de entrenamiento obtenidos utilizando el análisis de las componentes principales.</p>
+<div class="cell">
+
+</div>
+<p>Ya con el modelo creado y entrenado, se verifica el comportamiento de las predicciones utilizando la variable objetivo de los datos de entrenamiento con la matriz de confusión que observa en la Tabla 37.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 177599 </td>
+   <td style="text-align:right;"> 371105 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 159474 </td>
+   <td style="text-align:right;"> 878560 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 37.</strong> Matriz de confusión utilizando el conjunto de datos de entrenamiento
+</center>
+<p><br></p>
+<p>Con la matriz de confusión que observa en la Tabla 37, se calculan las métricas de precisión, sensibilidad y especificidad que se ven en la Tabla 38.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.6656165 </td>
+   <td style="text-align:right;"> 0.7030364 </td>
+   <td style="text-align:right;"> 0.5268859 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 38.</strong> Métricas del modelo utilizando el conjunto de datos de entrenamiento
+</center>
+<p><br></p>
+<p>Ahora, se verifica el comportamiento de las predicciones utilizando la variable objetivo de los datos de validación con la matriz de confusión que observa en la Tabla 39.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Matriz de confusión</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Yes </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 44651 </td>
+   <td style="text-align:right;"> 92458 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 40076 </td>
+   <td style="text-align:right;"> 219499 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 39.</strong> Matriz de confusión utilizando el conjunto de datos de validación
+</center>
+<p><br></p>
+<p>Con la matriz de confusión que observa en la Tabla 39, se calculan las métricas de precisión, sensibilidad y especificidad que se ven en la Tabla 40.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.6656165 </td>
+   <td style="text-align:right;"> 0.7030364 </td>
+   <td style="text-align:right;"> 0.5268859 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 40.</strong> Métricas del modelo utilizando el conjunto de datos de validación
+</center>
+<p><br></p>
+<p>Con los valores de las métricas obtenidos en las Tablas 38 y 40, podemos observar que para ambos casos los valores son bastante similares.</p>
+</section>
+</section>
+<section id="análisis-de-los-modelos-creados" class="level3">
+<h3 class="anchored" data-anchor-id="análisis-de-los-modelos-creados">3.5- Análisis de los modelos creados</h3>
+<p>En la Tabla 41, se observa los valores de las métricas de precisión, sensibilidad y especificidad obtenidos al analizar el comportamiento del modelo de regresión logística con los datos de entrenamiento y validación, y el comportamiento del modelo clasificador bayesiano ingenuo con los datos de entrenamiento y validación.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Valor de las métricas</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> precision </th>
+   <th style="text-align:right;"> sensibilidad </th>
+   <th style="text-align:right;"> especificidad </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Modelo RL Train </td>
+   <td style="text-align:right;"> 0.6246633 </td>
+   <td style="text-align:right;"> 0.6696111 </td>
+   <td style="text-align:right;"> 0.4170270 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Modelo RL Test </td>
+   <td style="text-align:right;"> 0.6255130 </td>
+   <td style="text-align:right;"> 0.6702154 </td>
+   <td style="text-align:right;"> 0.4189082 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Modelo CBI Train </td>
+   <td style="text-align:right;"> 0.6656165 </td>
+   <td style="text-align:right;"> 0.7030364 </td>
+   <td style="text-align:right;"> 0.5268859 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Modelo CBI Test </td>
+   <td style="text-align:right;"> 0.6658953 </td>
+   <td style="text-align:right;"> 0.7036194 </td>
+   <td style="text-align:right;"> 0.5269985 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 41.</strong> Métricas de los modelos creados
+</center>
+<p><br></p>
+<p>Con lo reflejado en la Tabla 41, se decide utilizar el modelo clasificador bayesiano ingenuo creado, ya que posee mejores resultados en cada una de las métricas tanto en el entrenamiento, como en la validación.</p>
+</section>
+<section id="predicción-de-acierto-en-la-pregunta-101-de-todos-los-usuarios" class="level3">
+<h3 class="anchored" data-anchor-id="predicción-de-acierto-en-la-pregunta-101-de-todos-los-usuarios">3.6- Predicción de acierto en la pregunta 101 de todos los usuarios</h3>
+<p>Para realizar la predicción de la pregunta 101 de cada usuario, primero se les realiza la transformación respectiva para poder utilizarlos en el modelo.</p>
+<div class="cell">
+
+</div>
+<p>Una vez realizada las transformación respectiva, se procede a realizar la predicción. El resultado de esto se puede ver en la Tabla 41., en la cual solo muestran las primeras 10 predicciones de los primeros 10 usuarios, debido a que la cantidad total de predicciones es muy grande, son 19.834.</p>
+<p>El número de predicciones obtenidas para la respuesta 101 fue para la cantidad de 19.834 usuarios y no 20.000, puesto que desde el inicio se procedió a trabajar con los usuarios que tenían localidad “Brazil”, y tampoco se tuvo en cuenta los usuarios que no contaban con la información requerida para el modelo predictivo.</p>
+<p>La probabilidad del modelo de predecir correctamente el resultado de acierto a la pregunta 101 “Yes”, es de 70,36%, como se observa en la Tabla 41.</p>
+<p>Cabe destacar que cada predicción de acierto en cada fila de la Tabla 42, es la predicción de acierto empezando con el usuario 1 hasta el usuario 19.834.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Predicción de acierto en la pregunta 101</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Prediccion </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> No </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> No </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 42.</strong> Resultado de las predicciones
+</center>
+<p><br></p>
+<p>En la Tabla 43, se puede observar la cantidad de usuarios que aciertan la pregunta 101, y los que no.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table lightable-minimal" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: &quot;Trebuchet MS&quot;, verdana, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>Cantidad de aciertos y desaciertos</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Prediccion </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:right;"> 15799 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 4035 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<center>
+<strong>Tabla 43.</strong> Cantidad de aciertos y desaciertos
+</center>
+<p><br></p>
+</section>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">4- Referencias</h2>
+<ul>
+<li>Amat, J.. (2016). Regresión logística simple y múltiple. 2022, noviembre 30, de Rpubs. Sitio web: https://rpubs.com/Joaquin_AR/229736</li>
+<li>Fervilber. (2022). Capítulo 5 Naive Bayes- clasificación bayesiano ingenuo. 2022, noviembre 30, de Aprendizaje-supervisado-en-R. Sitio web: https://fervilber.github.io/Aprendizaje-supervisado-en-R/ingenuo.html</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

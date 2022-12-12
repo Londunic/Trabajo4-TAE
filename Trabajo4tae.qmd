@@ -1,0 +1,1148 @@
+---
+title: "<center>The Adaptive Learning Challenge</center>"
+author: "Edwar Jose Londoño Correa <br> Andres Castrillón Velasquez <br> Diego Andres Chavarria Riaño <br> Sebastian Rendon Arteaga <br> Valentina Vanegas Castaño"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message = F,warning = F)
+```
+
+```{r}
+library(kableExtra)
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(caret)
+library(pander)
+```
+
+## 1- Contexto del problema
+
+El objetivo de esta competencia es crear un modelo de aprendizaje automático capaz de predecir la probabilidad de que un estudiante determinado responda correctamente la siguiente pregunta, dada una secuencia previa de cien resoluciones.
+
+```{r}
+# Resouesta de las 100 preguntas por 20,000 usuarios
+
+data1 <- read.csv("Dataset_model-1.csv", encoding = "UTF-8")
+data2 <- read.csv("Dataset_model-2.csv", encoding = "UTF-8")
+data3 <- read.csv("Dataset_model-3.csv", encoding = "UTF-8")
+data4 <- read.csv("Dataset_model-4.csv", encoding = "UTF-8")
+data5 <- read.csv("Dataset_model-5.csv", encoding = "UTF-8")
+data6 <- read.csv("Dataset_model-6.csv", encoding = "UTF-8")
+data7 <- read.csv("Dataset_model-7.csv", encoding = "UTF-8")
+data8 <- read.csv("Dataset_model-8.csv", encoding = "UTF-8")
+data9 <- read.csv("Dataset_model-9.csv", encoding = "UTF-8")
+datos <- rbind(data1,data2,data3,data4,data5,data6,data7,data8,data9)
+
+#respuestas enviadas por cada usuario
+respuestas <- read.csv("Submit.csv", encoding = "UTF-8", sep = ";")
+#head(datos)
+```
+
+## 2- Procesamiento de los datos
+
+### 2.1- Selección de variables
+
+Para la selección de las variables, se tomo en cuenta lo siguiente:
+
+-   Se decide eliminar las variables "gp.college.type", "gp.degree.course", y "gp.school.type", ya que consideramos suficiente la información obtenida de la variable "gp.carrers".
+
+-   Se decide eliminar las variables "city" y "region", ya que consideramos suficiente la información obtenida por país.
+
+-   Se eliminan las variables "device", "device_type", "os", y "platform", ya que no se considera relevante la información del dispostivio en el que el usuario presenta el examen.
+
+-   Las variables "gp:segment" , "commented_by_teacher" y "gp:source_project" son eliminadas ya que no se consideran relevantes para el estudio.
+
+-   La variable "created_at" se elimina ya que no se considera relevante la fecha en que presento la pregunta, y "publication_year" también se elimina ya que no se considera importante el año en que se publicó la pregunta.
+
+-   Las variables "row", "discipline_id", "examining_board_id", "institute_id", "novo_question_id", "knowledge_area_id", "product_id" y "novo_user_id" se eliminan ya que son variables de identificación.
+
+```{r}
+datos_modelo <- subset(datos, select = c(country,gp.carrers, gp.previous.experience, acertou,difficulty,modality_id,right_answer, scholarity_id, nullified, outdated))
+```
+
+```{r}
+datos_modelo <- datos_modelo %>% mutate(country = ifelse(country ==  "" , NA, country))
+
+
+datos_modelo <- datos_modelo %>% mutate(gp.carrers = ifelse(gp.carrers ==  "" , NA, gp.carrers))
+
+
+datos_modelo <- datos_modelo %>% mutate(gp.previous.experience = ifelse(gp.previous.experience ==  "" , NA, gp.previous.experience))
+
+datos_modelo <- datos_modelo %>% mutate(acertou = ifelse(acertou ==  "" , NA, acertou))
+
+datos_modelo <- datos_modelo %>% mutate(difficulty = ifelse(difficulty ==  "" , NA, difficulty))
+
+datos_modelo <- datos_modelo %>% mutate(modality_id = ifelse(modality_id ==  "" , NA, modality_id))
+
+datos_modelo <- datos_modelo %>% mutate(right_answer = ifelse(right_answer ==  "" , NA, right_answer))
+
+datos_modelo <- datos_modelo %>% mutate(scholarity_id = ifelse(scholarity_id ==  "" , NA, scholarity_id))
+
+datos_modelo <- datos_modelo %>% mutate(nullified = ifelse(nullified ==  "" , NA, nullified))
+
+datos_modelo <- datos_modelo %>% mutate(outdated = ifelse(outdated ==  "" , NA, outdated))
+```
+
+### 2.2- Análisis de las variables seleccionadas
+
+#### Variable "country"
+
+En la Tabla 1 podemos observar los valores únicos de esta variable. Para propósitos de estudio, solo se van a tener en cuenta los usuarios unicamente del país Brasil, los cuales son 19.836 usuarios de los 20.000 en total. Al hacer lo anterior, se va a proceder a eliminar esta variable, ya que ya no se considera relevante
+
+```{r}
+#Frecuencia
+
+kable(head(datos_modelo %>% group_by(country) %>% summarise(n = n()) %>% arrange(-n),4),caption = "Los primeros valores únicos - Country") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 1.** Valores únicos de la variable "country"</center>
+
+<br>
+
+```{r}
+datos_modelo <- datos_modelo[datos_modelo$country == "Brazil",]
+datos_modelo <- datos_modelo[!is.na(datos_modelo$country),]
+datos_modelo <- subset(datos_modelo, select = -c(country))
+```
+
+#### Variable "gp.carrers"
+
+En la Tabla 2 podemos observar los valores únicos de esta variable, los cuales son 1.452. Esta variable indica la carrera o el grupo de carreras al que pertenece el usuario. Debido a que los usuarios pueden pertenecer a diferentes carreras, se tomará unicamente la primera carrera de cada grupo. Esta correción se puede ver en la Tabla 3.
+
+```{r}
+#Frecuencia
+
+kable(head(datos_modelo %>% group_by(gp.carrers) %>% summarise(n = n()) %>% arrange(-n),10),caption = "Valores únicos - Carrers") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 2.** Valores únicos de la variable "gp.carrers"</center>
+
+<br>
+
+```{r}
+carreras <-str_split_fixed(datos_modelo$gp.carrers, ",", 2)
+carreras <- as.data.frame(carreras)
+datos_modelo$gp.carrers <- carreras$V1
+
+datos_modelo <- datos_modelo %>% mutate(gp.carrers = ifelse(gp.carrers ==  "" , NA, gp.carrers))
+
+datos_modelo <- datos_modelo %>% mutate(gp.carrers = ifelse(gp.carrers ==  "Exercito" ,"Exército", gp.carrers))
+```
+
+```{r}
+kable(datos_modelo %>% group_by(gp.carrers) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Carrers corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal
+```
+
+<center>**Tabla 3.** Valores únicos de la variable "gp.carrers" corregidos</center>
+
+<br>
+
+#### Variable "gp.previous.experience"
+
+En la Tabla 4 podemos observar los valores únicos de esta variable, los cuales son "beginner", "experient", " professional" y "highly_experient". Esta variable indica la experiencia previa como examinado del servicio civil.
+
+```{r}
+#Frecuencia
+
+kable(datos_modelo %>% group_by(gp.previous.experience) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Previous Experience") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 4.** Valores únicos de la variable "gp.previous.experience"</center>
+
+<br>
+
+#### Variable "difficulty"
+
+En la Tabla 5 podemos observar los valores únicos de esta variable, los cuales son: "1", "2", "3", "4" y "5". Esta variable indica la dificultad de la pregunta. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 1=level 1, 2= level 2, 3= level 3, 4= level 4 y 5= level 5. Lo anterior se puede ver en la Tabla 6.
+
+```{r}
+#Frecuencia
+
+kable(head(datos_modelo %>% group_by(difficulty) %>% summarise(n = n()) %>% arrange(-n),10),caption = "Valores únicos - Difficulty") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 5.** Valores únicos de la variable "difficulty"</center>
+
+<br>
+
+```{r}
+datos_modelo$difficulty <- as.factor(datos_modelo$difficulty)
+datos_modelo <- datos_modelo %>% 
+  mutate(difficulty = recode(difficulty,
+                             "1" = "level_1",
+                             "2" = "level_2",
+                             "3" = "level_3",
+                             "4" = "level_4",
+                             "5" = "level_5"))
+```
+
+```{r}
+
+kable(head(datos_modelo %>% group_by(difficulty) %>% summarise(n = n()) %>% arrange(-n),10),caption = "Valores únicos - Difficulty corregido") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 6.** Valores únicos de la variable "difficulty" corregidos</center>
+
+<br>
+
+#### Variable "modality_id"
+
+En la Tabla 7 podemos observar los valores únicos de esta variable, los cuales son "1" y "2". Esta variable indica el tipo de pregunta (Selección multiple o correcto/incorrecto). Para mejor entendimiento, se cambiará los valores 1 por S_M y el valor 2 por V_F. Lo anterior se puede ver en la Tabla 8.
+
+```{r}
+#Frecuencia
+
+kable(datos_modelo %>% group_by(modality_id) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Modality") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 7.** Valores únicos de la variable "modality_id"</center>
+
+<br>
+
+```{r}
+datos_modelo$modality_id <- as.factor(datos_modelo$modality_id)
+datos_modelo <- datos_modelo %>% 
+  mutate(modality_id = recode(modality_id,
+                              "1" = "S_M",
+                              "2" = "V_F"))
+```
+
+```{r}
+
+kable(datos_modelo %>% group_by(modality_id) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Modality corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 8.** Valores únicos de la variable "modality_id" corregidos</center>
+
+<br>
+
+#### Variable "right_answer"
+
+En la Tabla 9 podemos observar los valores únicos de esta variable. Esta variable indica la respuesta correcta de la pregunta. Se cambiaran los valores diferentes a A,B, C, D y E por NA. Lo anterior se puede ver en la Tabla 10.
+
+```{r}
+#Frecuencia
+
+kable(head(datos_modelo %>% group_by(right_answer) %>% summarise(n = n()) %>% arrange(-n),10),caption = "Valores únicos - Right Answer") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 9.** Valores únicos de la variable "right_answer"</center>
+
+<br>
+
+```{r}
+datos_modelo <- datos_modelo %>% mutate(right_answer = ifelse(right_answer ==  "X" , NA, right_answer))
+datos_modelo <- datos_modelo %>% mutate(right_answer = ifelse(right_answer ==  "*" , NA, right_answer))
+datos_modelo <- datos_modelo %>% mutate(right_answer = ifelse(right_answer ==  "+" , NA, right_answer))
+```
+
+```{r}
+
+kable(head(datos_modelo %>% group_by(right_answer) %>% summarise(n = n()) %>% arrange(-n),10),caption = "Valores únicos - Right Answer corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 10.** Valores únicos de la variable "right_answer" corregidos</center>
+
+<br>
+
+#### Variable "scholarity_id"
+
+En la Tabla 11 podemos observar los valores únicos de esta variable, los cuales son "1", "2" y "3". Esta variable indica el nivel educativo de la pregunta. Para mayor entendimiento, los valores se van a transformar por: 1= level_1, 2= level_2 y 3= level_3. Lo anterior se puede ver en la Tabla 12.
+
+```{r}
+#Frecuencia
+
+kable(datos_modelo %>% group_by(scholarity_id) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Scholarity") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 11.** Valores únicos de la variable "scholarity_id"</center>
+
+<br>
+
+```{r}
+datos_modelo$scholarity_id <- as.factor(datos_modelo$scholarity_id)
+datos_modelo <- datos_modelo %>% 
+  mutate(scholarity_id = recode(scholarity_id,
+                              "1" = "level_1",
+                              "2" = "level_2",
+                              "3" = "level_3"))
+```
+
+```{r}
+
+kable(datos_modelo %>% group_by(scholarity_id) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Scholarity Corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 12.** Valores únicos de la variable "scholarity_id" corregidos</center>
+
+<br>
+
+#### Variable "nullified"
+
+En la Tabla 13 podemos observar los valores únicos de esta variable, los cuales son "0" y "1". Esta variable indica si la pregunta fue cancelada. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 0=No y 1= Yes. Lo anterior se puede ver en la Tabla 14.
+
+```{r}
+#Frecuencia
+
+kable(datos_modelo %>% group_by(nullified) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Nullified") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 13.** Valores únicos de la variable "nullified"</center>
+
+<br>
+
+```{r}
+datos_modelo$nullified <- as.factor(datos_modelo$nullified)
+datos_modelo <- datos_modelo %>% 
+  mutate(nullified = recode(nullified,
+                              "0" = "No",
+                              "1" = "Yes"))
+```
+
+```{r}
+
+kable(datos_modelo %>% group_by(nullified) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Nullified corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 14.** Valores únicos de la variable "nullified" corregida</center>
+
+<br>
+
+#### Variable "outdated"
+
+En la Tabla 15 podemos observar los valores únicos de esta variable, los cuales son "0" y "1". Esta variable indica si la pregunta es desactualizada. Para mayor entendimiento de la variable, se transforma de la siguiente manera: 0=No y 1= Yes. Lo anterior se puede ver en la Tabla 16.
+
+```{r}
+#Frecuencia
+
+kable(datos_modelo %>% group_by(outdated) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Outdated") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 15.** Valores únicos de la variable "outdated"</center>
+
+<br>
+
+```{r}
+datos_modelo$outdated <- as.factor(datos_modelo$outdated)
+datos_modelo <- datos_modelo %>% 
+  mutate(outdated = recode(outdated,
+                              "0" = "No",
+                              "1" = "Yes"))
+```
+
+```{r}
+kable(datos_modelo %>% group_by(outdated) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Outdated corregidos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 16.** Valores únicos de la variable "outdated" corregidos</center>
+
+<br>
+
+```{r}
+datos_modelo$gp.carrers <- as.factor(datos_modelo$gp.carrers)
+datos_modelo$gp.previous.experience <- as.factor(datos_modelo$gp.previous.experience)
+datos_modelo$acertou <- as.factor(datos_modelo$acertou)
+datos_modelo$difficulty <- as.factor(datos_modelo$difficulty)
+datos_modelo$modality_id <- as.factor(datos_modelo$modality_id)
+datos_modelo$right_answer <- as.factor(datos_modelo$right_answer)
+datos_modelo$scholarity_id <- as.factor(datos_modelo$scholarity_id)
+datos_modelo$nullified <- as.factor(datos_modelo$nullified)
+datos_modelo$outdated <- as.factor(datos_modelo$outdated)
+```
+
+### 2.3- Análisis de valores NA
+
+En la Tabla 17 podemos observar los valores, NA por cada variable de la base de datos.
+
+```{r}
+#Cantidad de registros nulos
+
+kable(apply(is.na(datos_modelo),2,sum),caption = "Valores NA") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 17.** Cantidad de valores NA de cada variable de la base datos</center>
+
+<br>
+
+Se puede observar que las variables "modality_id", "scholarity_id", "nullified" y "outdated" se tiene la misma cantidad de valores NA. En la Tabla 18 se observa los registros donde se evidencia esto.
+
+```{r}
+
+kable(head(datos_modelo[is.na(datos_modelo$modality_id),],5),caption = "Registros del dataset") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 18.** Registros del dataset donde las variables "modality_id", "scholarity_id", "nullified" y "outdated" son NA</center>
+
+<br>
+
+En la Tabla 18 podemos observar que se cumple que en los 178 registros donde las variables "modality_id", "scholarity_id", "nullified" y "outdated" son NA, son los mismos. Se procede a eliminar estos registros.
+
+```{r}
+datos_modelo <- datos_modelo[!is.na(datos_modelo$modality_id),]
+```
+
+En la Tabla 19, se vuelve a calcular la cantidad de valores NA por cada variable.
+
+```{r}
+kable(apply(is.na(datos_modelo),2,sum),caption = "Valores NA") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 19.** Cantidad de valores NA de cada variable de la base datos</center>
+
+<br>
+
+Para las variables "gp.carrers',"gp.previous.experience" y "difficulty", se les va a sustituir sus valores NA por el valor de la moda.
+
+```{r}
+datos_modelo$gp.carrers[is.na(datos_modelo$gp.carrers)] <- "Policial"
+datos_modelo$gp.previous.experience[is.na(datos_modelo$gp.previous.experience)] <- "beginner"
+datos_modelo$difficulty[is.na(datos_modelo$difficulty)] <- "level_2"
+```
+
+Para la variable "right_answer", los valores NA se van a sustituir por el valor de la moda, de acuerdo las posibles respuesta dependiendo del tipo de pregunta (modality_id).
+
+```{r}
+div1 <- datos_modelo[datos_modelo$modality_id=="S_M",]
+div2 <- datos_modelo[datos_modelo$modality_id=="V_F",]
+```
+
+En la Tabla 20, podemos observar la cantidad de valores de cada valor único de la variable "right_answer" cuando la variable modality_id es igual a S_M. Y en la Tabla 21, podemos observar la cantidad de valores de cada valor único de la variable "right_answer" cuando la variable modality_id es igual a V_F
+
+```{r}
+kable(div1 %>% group_by(right_answer) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Right Answer") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 20.** Valores únicos de la variable "right_answer" cuando modality_id = S_M</center>
+
+<br>
+
+```{r}
+
+kable(div2 %>% group_by(right_answer) %>% summarise(n = n()) %>% arrange(-n),caption = "Valores únicos - Right Answer") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 21.** Valores únicos de la variable "right_answer" cuando modality_id = V_F</center>
+
+<br>
+
+En la Tabla 21, se observa un valor único "D" . Estos valores serán cambiados por el valor NA, ya que los únicos valores permidos para la variable "right_answer" cuando la variable "modality_id" es igual a V_F, son E y C.
+
+```{r}
+datos_modelo$right_answer[(datos_modelo$modality_id=="V_F" & datos_modelo$right_answer == "D")] <- NA
+
+datos_modelo$right_answer[(datos_modelo$modality_id=="V_F" & is.na(datos_modelo$right_answer))] <- "E"
+
+datos_modelo$right_answer[(datos_modelo$modality_id=="S_M" & is.na(datos_modelo$right_answer))] <- "C"
+```
+
+Una vez corregido los valores NA de la variable "right_answer" por sus respectiva moda, en la Tabla 22 se puede observar las nuevas cantidades de valores NA por variable.
+
+```{r}
+kable(apply(is.na(datos_modelo),2,sum),caption = "Valores NA") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 22.** Cantidad de valores NA de cada variable de la base datos</center>
+
+<br>
+
+### 2.4- Transformación de las variables categóricas
+
+Se convierten las variables categóricas a variables dummy, exceptuando la variable objetivo ("acertou"). Hay que tener en cuenta que todas las variables de la base de datos son categóricas. Con lo anterior, se obtiene un dataset con las dimensiones que se puede ver en la Tabla 23.
+
+```{r}
+Y <- as.data.frame(datos_modelo$acertou)
+datos_modelo <- subset(datos_modelo, select = -c(acertou))
+onehotencoding <- dummyVars(~.,data = datos_modelo)
+X <- as.data.frame(predict(onehotencoding,datos_modelo))
+datos_modelo <- as.data.frame(cbind(X,Y))
+```
+
+```{r}
+size <- data.frame(Filas=nrow(datos_modelo),Columnas = ncol(datos_modelo))
+
+kable(size,caption = "Tamaño del dataset") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 23.** Dimensiones del dataset</center>
+
+<br>
+
+## 3- Modelo predictivo
+
+Ya con la limpieza realizada a los datos, se procede con la creación del modelo de predicción. Para obtener una buena clasificación, vamos a crear diferentes modelos usando diferentes algoritmos y evaluaremos sus resultados para seleccionar el mejor modelo. Los algoritmos que se van a utilizar son:
+
+-   Regresión logística.
+
+-   Clasificador bayesiano ingenuo.
+
+### 3.1- Transformación de la variable objetivo
+
+Como paso inicial para la creación del modelo, se transforma la variable objetivo "Acertou" la cual tiene valores 0 y 1, a valores "No" o "Yes" respectivamente.
+
+```{r}
+colnames(datos_modelo)[38] <- "Acertou"
+datos_modelo$Acertou <- factor(datos_modelo$Acertou, levels = c("0", "1"), labels = c("No", "Yes"))
+```
+
+### 3.2- División del conjunto de datos en entrenamiento y validación
+
+El conjunto de datos se va a dividir de la siguiente forma: 80% para el conjunto de entrenamiento y el 20% para el conjunto de validación.
+
+```{r}
+set.seed(20)
+n_muestra <- dim(datos_modelo)[1]
+p_vl <- 0.2 # proporción de datos para validación
+ix_vl <- sample(n_muestra,size = round(n_muestra*p_vl),
+                replace = FALSE)
+datos_vl <- datos_modelo[ix_vl,]
+datos_tr <- datos_modelo[-ix_vl,]
+```
+
+Se realiza una revisión de la tasa de la variable "aciertos" en los conjuntos de entrenamiento y de validación.
+
+```{r}
+kable(proportions(table(datos_tr$Acertou)),caption = "Proporción de la variable Acertou en el conjunto de entrenamiento") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 24.** Proporción de la variable Acertou en el conjunto de entrenamiento</center>
+
+<br>
+
+```{r}
+kable(proportions(table(datos_vl$Acertou)),caption = "Proporción de la variable Acertou en el conjunto de validación") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 25.** Proporción de la variable Acertou en el conjunto de entrenamiento</center>
+
+<br>
+
+Como se puede ver en las Tablas 24 y 25, se mantiene la misma proporción de la variable "aciertos" en ambos conjuntos de datos.
+
+```{r}
+#Se divide ambos conjuntos en variables X y Y.
+
+## Conjunto de entrenamiento
+X_tr <- subset(datos_tr,select = -c(Acertou))
+Y_tr <- datos_tr$Acertou
+Y_tr <- as.factor(Y_tr)
+
+## Conjunto de validacion
+X_vl <- subset(datos_vl,select = -c(Acertou))
+Y_vl <- datos_vl$Acertou
+Y_vl <- as.factor(Y_vl)
+```
+
+### 3.3- Modelo usando regresión logística.
+
+La regresión logística es "un método de regresión que permite estimar la probabilidad de una variable cualitativa binaria en función de una variable cuantitativa" (Amat, 2016).
+
+Para la creación del modelo, usaremos los datos de entrenamiento. Una vez entrenado el modelo. Podemos observar en la Tabla 26 el resumen del modelo. En este resumen se obtiene el **p-value** **(Pr(\>\|z\|)**, el cual representa la relevancia estadística que tiene cada una de las variables como elemento predictivo.
+
+Usando un nivel de significancia alpha = 0.05, identificamos que las variables "difficulty.level_1", "difficulty.level_2", "difficulty.level_3", "difficulty.level_4" y "difficulty.level_5" no tienen importancia para el modelo. Se vuelve a crear el modelo eliminando las variables anteriores.
+
+```{r}
+#Clasificador usando regresión logística
+datos_entrenamiento <-datos_tr
+
+clasificadorRL <- glm(Acertou ~ ., family = binomial, data = datos_entrenamiento)
+
+p <- summary(clasificadorRL)
+
+pander(p[["coefficients"]])
+```
+
+<center>**Tabla 26.** Resumen estadístico del modelo usando regresión logística</center>
+
+<br>
+
+```{r}
+datos_entrenamiento = subset(datos_entrenamiento, select = -c(difficulty.level_1, difficulty.level_2, difficulty.level_3, difficulty.level_4, difficulty.level_5))
+
+#Clasificador usando regresión logística
+clasificadorRL <- glm(Acertou ~ ., family = binomial, data = datos_entrenamiento)
+```
+
+Ya con el modelo creado y entrenado, se realiza la predicción usando los valores de entrenamiento para analizar el comportamiento del modelo. Al momento de realizar las predicciones, se obtienen los valores de probabilidad de ocurriencia de cada clase. A continuación, se analiza el valor del umbral para identificar cuando una un registro se clasifica como "Yes" o "No". Este umbral indica: si la probabilidad es menor o igual al umbral, se clasifica como "No", en caso contrario, se clasifica como "Si".
+
+#### 3.3.1- Umbral = 0.5
+
+Al utilizar un umbral igual a 0.5, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 27.
+
+```{r}
+
+#Predición usando los datos de entrenamiento
+pred_train <- predict(clasificadorRL, type = 'response', ndata = datos_entrenamiento)
+pred_train <- ifelse(pred_train > 0.5, 1, 0)
+pred_train <- factor(pred_train, levels = c("0", "1"), labels = c("No", "Yes"))
+
+#Matriz de confusión
+matrizConfusion <- table(datos_entrenamiento$Acertou, pred_train)
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 27.** Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.5</center>
+
+<br> En la Tabla 27 podemos observar que se tiene un total de 1.038.110 predicciones correctas y 548.628, lo que equivale a una precisión de predicción de 65,42% correcta y de 34,58% incorrecta.
+
+En la Tabla 28, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.
+
+```{r}
+#Calculo de las metricas
+
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas1 <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas1 <- as.data.frame(metricas1)
+
+kable(metricas1,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 28.** Métricas del modelo utilizando un umbral = 0.5</center>
+
+<br>
+
+#### 3.3.3- Umbral = 0.4
+
+Al utilizar un umbral igual a 0.4, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 29.
+
+```{r}
+#Predición usando los datos de entrenamiento
+pred_train <- predict(clasificadorRL, type = 'response', ndata = datos_entrenamiento)
+pred_train <- ifelse(pred_train > 0.4, 1, 0)
+pred_train <- factor(pred_train, levels = c("0", "1"), labels = c("No", "Yes"))
+
+#Matriz de confusión
+matrizConfusion <- table(datos_entrenamiento$Acertou, pred_train)
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+
+#matrizConfusion
+```
+
+<center>**Tabla 29.** Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.4</center>
+
+<br>
+
+En la Tabla 29 podemos observar que se tiene un total de 1.038.038 predicciones correctas y 548.700, lo que equivale a una precisión de predicción de 65,42% correcta y de 34,58% incorrecta.
+
+En la Tabla 30, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.
+
+```{r}
+#Calculo de las metricas
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas2 <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas2 <- as.data.frame(metricas2)
+
+kable(metricas2,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 30.** Métricas del modelo utilizando un umbral = 0.4</center>
+
+<br>
+
+#### 3.3.3- Umbral = 0.6
+
+Al utilizar un umbral igual a 0.6, se puede observar el comportamiento del modelo en la tabla de confusión que se obtiene en la Tabla 31.
+
+```{r}
+#Predición usando los datos de entrenamiento
+pred_train <- predict(clasificadorRL, type = 'response', ndata = datos_entrenamiento)
+pred_train <- ifelse(pred_train > 0.6, 1, 0)
+pred_train <- factor(pred_train, levels = c("0", "1"), labels = c("No", "Yes"))
+
+#Matriz de confusión
+matrizConfusion <- table(datos_entrenamiento$Acertou, pred_train)
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+
+#matrizConfusion
+```
+
+<center>**Tabla 31.** Matriz de confusión de las predecciones obtenidas utilizando los datos de entrenamiento con umbral = 0.6</center>
+
+<br>
+
+En la Tabla 31 podemos observar que se tiene un total de 991.177 predicciones correctas y 595.561, lo que equivale a una precisión de predicción de 62,46% correcta y de 37,54% incorrecta.
+
+En la Tabla 32, se puede observar el valor obtenido utilizando las métricas de precisión, sensibilidad y especificidad.
+
+```{r}
+#Calculo de las metricas
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas3 <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas3 <- as.data.frame(metricas3)
+
+kable(metricas3,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 32.** Métricas del modelo utilizando un umbral = 0.6</center>
+
+<br>
+
+#### 3.3.4- Análisis del modelo usando las métricas obtenidas por cada variación del umbral
+
+Una vez calculado las métricas de precisión, sensibilidad y especificidad para el modelo cambiando el valor del umbral, se obtiene la Tabla 33.
+
+```{r}
+metricas_train <- rbind(metricas1, metricas2, metricas3)
+metricas_train <- as.data.frame(metricas_train)
+rownames(metricas_train) <- c("Umbral 0.5","Umbral 0.4","Umbral 0.6")
+
+kable(metricas_train,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 33.** Métricas del modelo utilizando un umbral igual a 0.4, 0.5 y 0.6</center>
+
+<br>
+
+En la Tabla 33, observamos que:
+
+-   El mejor valor para la presión (capacidad de predección correcta) se obtuvo utilizando un umbral de 0.5.
+
+-   El mejor valor para la sensibilidad (capacidad de predecir verdaderos positivos) se obtuvo utilizando un umbral de 0.6.
+
+-   El mejor valor para la especificidad (capacidad de predecir verdaderos negativos) se obtuvo utilizando un umbral de 0.4.
+
+El interés de este trabajo es crear un modelo que sea bueno prediciendo el valor "Yes", ya que se busca predecir la probabildad de que un estudiante determinado responda correctamente la siguiente pregunta. Por lo anterior se escoge el umbral 0.6.
+
+#### 3.3.5- Análisis del modelo utilizando los datos de validación
+
+Ya definido el modelo, se realizan validaciones utilizando el conjunto de validación.
+
+```{r}
+datos_validacion = subset(datos_vl, select = -c(difficulty.level_1, difficulty.level_2, difficulty.level_3, difficulty.level_4, difficulty.level_5))
+
+pred_valid <- predict(clasificadorRL, type = 'response', newdata = datos_validacion)
+pred_valid <- ifelse(pred_valid > 0.6, 1, 0)
+pred_valid <- factor(pred_valid, levels = c("0", "1"), labels = c("No", "Yes"))
+
+matrizConfusion <- table(datos_validacion$Acertou , pred_valid)
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 34.** Matriz de confusión de las predecciones obtenidas utilizando los datos de validación</center>
+
+<br>
+
+En la Tabla 34, podemos observar que se tiene un total de 248.131 predicciones correctas y 148.553, lo que equivale a una precisión de predicción de 62,55% correcta y de 37,45% incorrecta.
+
+```{r}
+#Calculo de las metricas
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas_val <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas_val <- as.data.frame(metricas_val)
+
+kable(metricas_val,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 35.** Métricas del modelo utilizando el conjunto de datos de validación</center>
+
+<br>
+
+Y en la Tabla 35, podemos observar los valores de las métricas de precisión, sensibilidad y especificidad utilizando los datos de validación. Estos valores son similares a los obtenidos en las métricas utilizando el conjunto de entrenamiento, con el umbral definido (0.6).
+
+### 3.4- Modelo utilizando clasificador bayesiano ingenuo
+
+El clasificador bayesiano ingenuo es "un modelo de predicción basado en la probabilidad Bayesiana" (Fervilber, 2022).
+
+#### 3.4.1- A.C.P (Análisis de las componentes principales)
+
+Se realiza un Análisis de Componentes Principales para la selección de las variables, el cual se puede ver en la Tabla 36. Para conservar el 91.42% de la variabilidad explicada en las variables, se va a trabajar con las primeras 11 componentes principales.
+
+```{r}
+#Se realiza el calculo del ACP
+ACP <- prcomp(X_tr, center = FALSE)
+
+p<-summary(ACP)
+pander(p[["importance"]])
+```
+
+<center>**Tabla 36.** Análisis de Componentes Principales</center>
+
+<br>
+
+```{r}
+#Se seleccionan las primeras 11 componentes principales
+X_tr_acp <- data.frame(ACP$x[,1:11])
+```
+
+#### 3.4.2- Creación del modelo
+
+Para la creación del modelo, se utiliza la librería "e1071", la cual trae una función "naiveBayes" que permite crear el modelo. Para la crear el modelo se utilizando los valores de entrenamiento obtenidos utilizando el análisis de las componentes principales.
+
+```{r}
+library(e1071)
+
+#Se crea un dataframe donde se juntes las 11 columnas pincipales del acp, y la variable obj.
+datos_training <- cbind(X_tr_acp,Y_tr)
+colnames(datos_training)[12] <- "Acertou"
+
+set.seed(1234)
+clasificadorBayes <- naiveBayes(Acertou ~ ., data = datos_training)
+```
+
+Ya con el modelo creado y entrenado, se verifica el comportamiento de las predicciones utilizando la variable objetivo de los datos de entrenamiento con la matriz de confusión que observa en la Tabla 37.
+
+```{r}
+#Se realiza la predicción
+pred_train <- predict(clasificadorBayes, newdata = datos_training)
+
+#Se crea la matriz de confusión
+matrizConfusion <- table(datos_training$Acertou , pred_train)
+
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 37.** Matriz de confusión utilizando el conjunto de datos de entrenamiento</center>
+
+<br>
+
+Con la matriz de confusión que observa en la Tabla 37, se calculan las métricas de precisión, sensibilidad y especificidad que se ven en la Tabla 38.
+
+```{r}
+#Calculo de las metricas
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas_train2 <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas_train2 <- as.data.frame(metricas_train2)
+
+
+
+kable(metricas_train2,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 38.** Métricas del modelo utilizando el conjunto de datos de entrenamiento</center>
+
+<br>
+
+Ahora, se verifica el comportamiento de las predicciones utilizando la variable objetivo de los datos de validación con la matriz de confusión que observa en la Tabla 39.
+
+```{r}
+ACP_vl <- predict(ACP, newdata= X_vl)
+X_vl_acp <- data.frame(ACP_vl[,1:11])
+datos_validation <- cbind(X_vl_acp, Y_vl)
+colnames(datos_validation)[12] <- "Acertou"
+
+#Se realiza la predicción
+pred_val <- predict(clasificadorBayes, newdata = datos_validation)
+
+#Se crea la matriz de confusión
+matrizConfusion <- table(datos_validation$Acertou , pred_val)
+
+
+kable(matrizConfusion,caption = "Matriz de confusión") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 39.** Matriz de confusión utilizando el conjunto de datos de validación</center>
+
+<br>
+
+Con la matriz de confusión que observa en la Tabla 39, se calculan las métricas de precisión, sensibilidad y especificidad que se ven en la Tabla 40.
+
+```{r}
+#Calculo de las metricas
+precision <- sum(diag(matrizConfusion))/sum(matrizConfusion)
+sensibilidad <- matrizConfusion[2,2]/(matrizConfusion[2,2]+matrizConfusion[1,2])
+especificidad <-    matrizConfusion[1,1]/(matrizConfusion[1,1]+matrizConfusion[2,1])
+
+metricas_val2 <- list(precision=precision,
+                 sensibilidad=sensibilidad,
+                 especificidad=especificidad)
+metricas_val2 <- as.data.frame(metricas_val2)
+
+
+
+kable(metricas_train2,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 40.** Métricas del modelo utilizando el conjunto de datos de validación</center>
+
+<br>
+
+Con los valores de las métricas obtenidos en las Tablas 38 y 40, podemos observar que para ambos casos los valores son bastante similares.
+
+### 3.5- Análisis de los modelos creados
+
+En la Tabla 41, se observa los valores de las métricas de precisión, sensibilidad y especificidad obtenidos al analizar el comportamiento del modelo de regresión logística con los datos de entrenamiento y validación, y el comportamiento del modelo clasificador bayesiano ingenuo con los datos de entrenamiento y validación.
+
+```{r}
+metrics <- rbind(metricas3,metricas_val,metricas_train2,metricas_val2)
+metrics <- as.data.frame(metrics)
+rownames(metrics) <- c("Modelo RL Train","Modelo RL Test","Modelo CBI Train", "Modelo CBI Test")
+
+kable(metrics,caption = "Valor de las métricas") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 41.** Métricas de los modelos creados</center>
+
+<br>
+
+Con lo reflejado en la Tabla 41, se decide utilizar el modelo clasificador bayesiano ingenuo creado, ya que posee mejores resultados en cada una de las métricas tanto en el entrenamiento, como en la validación.
+
+### 3.6- Predicción de acierto en la pregunta 101 de todos los usuarios
+
+Para realizar la predicción de la pregunta 101 de cada usuario, primero se les realiza la transformación respectiva para poder utilizarlos en el modelo.
+
+```{r}
+# Transformación de la base de datos envio
+
+#Se eliminan las variables que no se utilizan
+datos_resp <- subset(respuestas, select = c(country,gp.carrers, gp.previous.experience,difficulty,modality_id,right_answer, scholarity_id, nullified, outdated))
+
+#Cambio de valores vacios por NA
+datos_resp <- datos_resp %>% mutate(country = ifelse(country ==  "" , NA, country))
+datos_resp <- datos_resp %>% mutate(gp.carrers = ifelse(gp.carrers ==  "" , NA, gp.carrers))
+datos_resp <- datos_resp %>% mutate(gp.previous.experience = ifelse(gp.previous.experience ==  "" , NA, gp.previous.experience))
+
+datos_resp <- datos_resp %>% mutate(difficulty = ifelse(difficulty ==  "" , NA, difficulty))
+datos_resp <- datos_resp %>% mutate(modality_id = ifelse(modality_id ==  "" , NA, modality_id))
+datos_resp <- datos_resp %>% mutate(right_answer = ifelse(right_answer ==  "" , NA, right_answer))
+datos_resp <- datos_resp %>% mutate(scholarity_id = ifelse(scholarity_id ==  "" , NA, scholarity_id))
+datos_resp <- datos_resp %>% mutate(nullified = ifelse(nullified ==  "" , NA, nullified))
+datos_resp <- datos_resp %>% mutate(outdated = ifelse(outdated ==  "" , NA, outdated))
+
+#Frecuencia de pais
+datos_resp <- datos_resp[datos_resp$country == "Brazil",]
+datos_resp <- datos_resp[!is.na(datos_resp$country),]
+datos_resp <- subset(datos_resp, select = -c(country))
+
+#Variable gp.carrers
+carreras <-str_split_fixed(datos_resp$gp.carrers, ",", 2)
+carreras <- as.data.frame(carreras)
+datos_resp$gp.carrers <- carreras$V1
+
+datos_resp <- datos_resp %>% mutate(gp.carrers = ifelse(gp.carrers ==  "Exercito" ,"Exército", gp.carrers))
+
+datos_resp <- datos_resp %>% mutate(gp.carrers = ifelse(gp.carrers ==  "" , NA, gp.carrers))
+
+#Variable difficulty
+
+datos_resp$difficulty <- as.factor(datos_resp$difficulty)
+datos_resp <- datos_resp %>% 
+  mutate(difficulty = recode(difficulty,
+                             "1" = "level_1",
+                             "2" = "level_2",
+                             "3" = "level_3",
+                             "4" = "level_4",
+                             "5" = "level_5"))
+
+#Variable modality_id
+
+datos_resp$modality_id <- as.factor(datos_resp$modality_id)
+datos_resp <- datos_resp %>% 
+  mutate(modality_id = recode(modality_id,
+                              "1" = "S_M",
+                              "2" = "V_F"))
+
+#Variable right_answer
+datos_resp <- datos_resp %>% mutate(right_answer = ifelse(right_answer ==  "X" , NA, right_answer))
+datos_resp <- datos_resp %>% mutate(right_answer = ifelse(right_answer ==  "*" , NA, right_answer))
+datos_resp <- datos_resp %>% mutate(right_answer = ifelse(right_answer ==  "+" , NA, right_answer))
+
+#Variable scholarity_id
+datos_resp$scholarity_id <- as.factor(datos_resp$scholarity_id)
+datos_resp <- datos_resp %>% 
+  mutate(scholarity_id = recode(scholarity_id,
+                              "1" = "level_1",
+                              "2" = "level_2",
+                              "3" = "level_3"))
+
+#Variable nullified
+datos_resp$nullified <- as.factor(datos_resp$nullified)
+datos_resp <- datos_resp %>% 
+  mutate(nullified = recode(nullified,
+                              "0" = "No",
+                              "1" = "Yes"))
+
+#Variable outdated
+datos_resp$outdated <- as.factor(datos_resp$outdated)
+datos_resp <- datos_resp %>% 
+  mutate(outdated = recode(outdated,
+                              "0" = "No",
+                              "1" = "Yes"))
+
+datos_resp$gp.carrers <- as.factor(datos_resp$gp.carrers)
+datos_resp$gp.previous.experience <- as.factor(datos_resp$gp.previous.experience)
+datos_resp$difficulty <- as.factor(datos_resp$difficulty)
+datos_resp$modality_id <- as.factor(datos_resp$modality_id)
+datos_resp$right_answer <- as.factor(datos_resp$right_answer)
+datos_resp$scholarity_id <- as.factor(datos_resp$scholarity_id)
+datos_resp$nullified <- as.factor(datos_resp$nullified)
+datos_resp$outdated <- as.factor(datos_resp$outdated)
+
+
+#Valores nulos
+
+#Se elimina las filas donde las variables "modality_id", "scholarity_id", "nullified" y "outdated" son NA al mismo tiempo
+
+datos_resp <- datos_resp[!is.na(datos_resp$modality_id),]
+
+#Sustitucion de NA por moda en gp.carrers, difficulty y gp.previous.experience
+datos_resp$gp.carrers[is.na(datos_resp$gp.carrers)] <- "Policial"
+datos_resp$gp.previous.experience[is.na(datos_resp$gp.previous.experience)] <- "beginner"
+datos_resp$difficulty[is.na(datos_resp$difficulty)] <- "level_2"
+
+#Sustitucion de NA por moda en right_answer
+
+datos_resp$right_answer[(datos_resp$modality_id=="V_F" & is.na(datos_resp$right_answer))] <- "E"
+
+datos_resp$right_answer[(datos_resp$modality_id=="S_M" & is.na(datos_resp$right_answer))] <- "C"
+
+#Conversión de variables categóricas a dummys
+
+onehotencoding <- dummyVars(~.,data = datos_resp)
+datos_resp <- as.data.frame(predict(onehotencoding,datos_resp))
+
+#Se calculan las componentes principales
+
+ACP_resp <- predict(ACP, newdata= datos_resp)
+datos_resp_acp <- data.frame(ACP_resp[,1:11])
+```
+
+Una vez realizada las transformación respectiva, se procede a realizar la predicción. El resultado de esto se puede ver en la Tabla 41., en la cual solo muestran las primeras 10 predicciones de los primeros 10 usuarios, debido a que la cantidad total de predicciones es muy grande, son 19.834.
+
+El número de predicciones obtenidas para la respuesta 101 fue para la cantidad de 19.834 usuarios y no 20.000, puesto que desde el inicio se procedió a trabajar con los usuarios que tenían localidad "Brazil", y tampoco se tuvo en cuenta los usuarios que no contaban con la información requerida para el modelo predictivo.
+
+La probabilidad del modelo de predecir correctamente el resultado de acierto a la pregunta 101 "Yes", es de 70,36%, como se observa en la Tabla 41.
+
+Cabe destacar que cada predicción de acierto en cada fila de la Tabla 42, es la predicción de acierto empezando con el usuario 1 hasta el usuario 19.834.
+
+```{r}
+#Se realiza la prediccion con el modelo clasificador bayesiano ingenuo
+pred <- predict(clasificadorBayes, newdata = datos_resp_acp)
+pred <- as.data.frame(pred)
+colnames(pred) <- c("Prediccion")
+
+kable(head(pred,10),caption = "Predicción de acierto en la pregunta 101") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 42.** Resultado de las predicciones</center>
+
+<br>
+
+En la Tabla 43, se puede observar la cantidad de usuarios que aciertan la pregunta 101, y los que no.
+
+```{r}
+kable(pred %>% group_by(Prediccion) %>% summarise(n = n()) %>% arrange(-n),caption = "Cantidad de aciertos y desaciertos") %>% 
+  kable_styling(full_width = F,position = "center") %>% 
+  kable_minimal()
+```
+
+<center>**Tabla 43.** Cantidad de aciertos y desaciertos</center>
+
+<br>
+
+## 4- Referencias
+
+-   Amat, J.. (2016). Regresión logística simple y múltiple. 2022, noviembre 30, de Rpubs. Sitio web: https://rpubs.com/Joaquin_AR/229736
+-   Fervilber. (2022). Capítulo 5 Naive Bayes- clasificación bayesiano ingenuo. 2022, noviembre 30, de Aprendizaje-supervisado-en-R. Sitio web: https://fervilber.github.io/Aprendizaje-supervisado-en-R/ingenuo.html
